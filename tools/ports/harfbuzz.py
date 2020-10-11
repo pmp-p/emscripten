@@ -48,7 +48,8 @@ def get(ports, settings, shared):
 
     if settings.RELOCATABLE:
       extra_cxx_flags.append('-fPIC')
-
+      configure_args += ['-DCMAKE_C_FLAGS="-fPIC"']
+      
     if settings.USE_PTHREADS:
       extra_cxx_flags.append('-pthread')
 
