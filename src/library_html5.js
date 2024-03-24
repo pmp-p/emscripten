@@ -479,19 +479,34 @@ var LibraryHTML5 = {
       ;
 
 #if !DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR
+    // use .canvas{X/Y}
     if (Module['canvas']) {
-      var rect = getBoundingClientRect(Module['canvas']);
-      HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.canvasX / 4 }}}] = e.clientX - (rect.left | 0);
-      HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.canvasY / 4 }}}] = e.clientY - (rect.top  | 0);
+      var canvas = Module['canvas'];
+      var rect = getBoundingClientRect(canvas);
+
+      // only scale values for 3D contexts
+      if (canvas.getContext && !canvas.getContext("2d")) {
+        scaleX = canvas.width / rect.width;
+        scaleY = canvas.height / rect.height;
+      }
+      HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.canvasX / 4 }}}] = (e.clientX - rect.left) * scaleX;
+      HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.canvasY / 4 }}}] = (e.clientY - rect.top) * scaleY;
     } else { // Canvas is not initialized, return 0.
       HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.canvasX / 4 }}}] = 0;
       HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.canvasY / 4 }}}] = 0;
     }
 #endif
     // Note: rect contains doubles (truncated to placate SAFE_HEAP, which is the same behaviour when writing to HEAP32 anyway)
-    var rect = getBoundingClientRect(target);
-    HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.targetX / 4 }}}] = e.clientX - (rect.left | 0);
-    HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.targetY / 4 }}}] = e.clientY - (rect.top  | 0);
+    // use .target{X/Y}
+     var rect = getBoundingClientRect(target);
+
+    // only scale values for 3D contexts
+    if (target.getContext && !target.getContext("2d")) {
+      scaleX = target.width / rect.width;
+      scaleY = target.height / rect.height;
+    }
+    HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.targetX / 4 }}}] = (e.clientX - rect.left) * scaleX;
+    HEAP32[idx + {{{ C_STRUCTS.EmscriptenMouseEvent.targetY / 4 }}}] = (e.clientY - rect.top) * scaleY;
 
 #if MIN_SAFARI_VERSION <= 80000 || MIN_CHROME_VERSION <= 21 // https://caniuse.com/#search=movementX
 #if MIN_CHROME_VERSION <= 76
