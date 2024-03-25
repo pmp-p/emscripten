@@ -477,7 +477,9 @@ var LibraryHTML5 = {
       || (e.screenY-JSEvents.previousScreenY)
 #endif
       ;
-
+    // default scale values for 2D contexts, which atm don't seem to be affected by css scaling
+    var scaleX = 1;
+    var scaleY = 1;
 #if !DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR
     // use .canvas{X/Y}
     if (Module['canvas']) {
