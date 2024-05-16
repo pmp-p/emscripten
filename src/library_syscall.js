@@ -277,7 +277,7 @@ var SyscallsLibrary = {
         // TODO: in theory we should write to the winsize struct that gets
         // passed in, but for now musl doesn't read anything on it
         if (!stream.tty) return -{{{ cDefs.ENOTTY }}};
-        if (stream.tty.ops.ioctl_tiocgwinsz) {
+        if (stream.tty.ops && stream.tty.ops.ioctl_tiocgwinsz) {
           var winsize = stream.tty.ops.ioctl_tiocgwinsz(stream.tty);
           var argp = syscallGetVarargP();
           {{{ makeSetValue('argp', 0, 'winsize[0]', 'i16') }}};
